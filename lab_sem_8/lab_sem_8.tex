@@ -1,0 +1,240 @@
+\documentclass[11pt, letterpaper]{article}
+\usepackage[text={6.5in,9in}]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage{ragged2e}
+\usepackage{titlesec}
+\usepackage{xspace}
+
+\renewcommand{\familydefault}{\rmdefault}
+
+\setcounter{section}{0}
+\setcounter{page}{1}
+
+\setlength{\parindent}{3em} % First line paragraph indentation
+
+\titleformat*{\section}{\LARGE\bfseries}
+
+\lstset{
+basicstyle=\small\ttfamily,
+numbers=left,
+%numberstyle=\scriptsize,
+%numbersep=1pt,
+%belowskip=\medskipamount,
+%frame = trBL,%single,
+%framexleftmargin=15pt,
+showstringspaces=false,
+literate={á}{{\'a}}1 {í}{{\'i}}1 {é}{{\'e}}1 {ó}{{\'o}}1 {ú}{{\'u}}1 {ñ}{{\~n}}1,
+}
+
+\begin{document}
+
+\begin{flushleft}
+{\small
+Universidad Simón Bolívar\\
+Departamento de Computación y Tecnología de la Información\\
+CI-2692 - Laboratorio de Algoritmos y Estructuras II\\
+Trimestre Enero-Marzo 2017
+}
+\end{flushleft}
+
+\vspace{1em}
+\begin{center}
+{\LARGE
+\textbf{
+Introducción a la programación orientada a objetos.\\
+TADs Pila y Cola
+}}
+\end{center}
+\vspace{1em}
+
+\section*{Introducción}
+El objetivo del laboratorio es adquirir los conocimientos básicos en la programación orientada a objetos, así como la implementación de tipos abstractos de datos esenciales y para ello usará el código base adjunto a este enunciado.Tendrá que crear dos archivos llamados:
+
+\begin{itemize}
+    \item \textbf{pila.py}. Módulo que contiene la implementación del tipo de dato que representa una \textbf{pila}.
+    \item \textbf{cola.py}. Módulo que contiene la implementación del tipo de dato que representa una \textbf{cola}.
+\end{itemize}
+
+Mas adelante se le indicaran cuales métodos deberá implementar pero en primer lugar se definen los características básicas del paradigma orientado a objetos.
+
+\section*{Objetos}
+Los objetos son contenedores de información, que toma la forma de atributos, llamados también propiedades, y métodos que manipulan operan con esos atributos. Toda esas interacciones que ocurran serán dentro del objeto y esa será su frontera. Aun cuando existe esa barrera, los objetos pueden relacionarse y crear referencias entre ellos. En primer lugar se hará un definición breve de los posibles objetos que pueden existir dentro del paradigma.
+
+\subsection*{Clases}
+Las clases son quienes indican cuales atributos y métodos tendrá, y podrá disponer, una instancia. Definir una clase en \textit{Python} sería como se muestra a continuación.
+
+\begin{center}
+\begin{lstlisting}[language=Python,frame=single]
+    class Perro:
+        
+        def __init__(self, nombre):
+            self.nombre = nombre
+\end{lstlisting}
+\end{center}
+
+Esta clase representa a los perros y al momento de crear un representante, una instancia, se le asigna un nombre, el cuál puede ser preguntado a dicha instancia. El método \texttt{\_\_init\_\_} es especial porque es llamada justo despues de crear la instancia e inicializa los atributos con los parametros que le fueron pasados.
+
+\subsection*{Instancias}
+
+Las instancias son los representantes de una clase, pueden ser visto como miembros de un conjunto o elementos pertenecientes a un tipo, ambos son puntos de vista válidos. A continuación se ilustra la obtención de un atributo a una instancia tomando en cuenta la clase \textit{Perro} definida anteriormente.
+
+\begin{center}
+\begin{lstlisting}[language=Python,frame=single]
+    p = Perro("Brownie") # Se crea una instancia de la clase Perro
+    
+    aux_nombre = p.nombre # Se pregunta por el nombre y es asignado
+    
+    print(aux_nombre) # Se imprime por consola el nombre del perro
+    
+\end{lstlisting}
+\end{center}
+
+\subsection*{Atributos y Métodos}
+
+Hay dos tipos de atributos y dos de tipos de métodos, aquellos que pertenecen a las instancias y los que pertenecen a las clases. Se separan de la siguiente manera:
+
+\begin{itemize}
+    \item Atributo de instancia. Propiedad singular perteneciente a cada instancia de la clase.
+    \item Atributo de clase. Propiedad común para todos las instancias dado que pertenecen a una misma clase.
+    \item Método de instancia. Procedimiento perteneciente a la instancia y que puede manipular los atributos de instancia juntos a los atributos de clase.
+    \item Método de clase. Procedimiento exclusivo para la clase y sólo puede acceder a las variables de clase.
+\end{itemize}
+
+Tomando la siguiente definición de clase con un atributo de clase, se indicará como se puede obtener el valor guardado.
+
+\begin{center}
+\begin{lstlisting}[language=Python,frame=single]
+    class Gato:
+    
+        genero = 'felino' # Atributo de clase
+        
+        def __init__(self, nombre):
+            self.nombre = nombre # Atributo de instancia
+    
+\end{lstlisting}
+\end{center}
+
+Para acceder a la variable de clase se debe indicar la clase a consultar y el nombre del atributo, similar a las instancias.
+
+\begin{center}
+\begin{lstlisting}[language=Python,frame=single]
+    g = Gato.genero # Se obtiene el genero de los gatos
+    
+    print(g) # Imprime el genero
+\end{lstlisting}
+\end{center}
+
+De igual forma se accede a los atributos de clase dentro de los métodos de instancia, lo que se han definido hasta el momento. Por otro lado los métodos de clase son definidos de la siguiente manera, usando la declaración \texttt{@classmethod}.
+
+\begin{center}
+\begin{lstlisting}[language=Python,frame=single]
+    class Gato:
+    
+        genero = 'felino'
+        
+        def __init__(self,nombre):
+            self.nombre = nombre
+            
+        @classmethod
+        def imprimir_genero(cls):
+            s = 'Genero: ' + cls.genero
+            print(s)
+\end{lstlisting}
+\end{center}
+
+Una llamada a un método de clase sería de la siguiente forma.
+
+\begin{center}
+\begin{lstlisting}[language=Python,frame=single]
+    Gato.imprimir_genero()
+\end{lstlisting}
+\end{center}
+
+\subsection*{\textit{self}}
+Hasta el momento se ha usado la variable \texttt{self} en todos los métodos y esto es porque es una variable especial, es una referencia directa a la instancia que permite vincularla con sus métodos. Con el objetivo de consultar y manipular los atributos de la misma.
+
+\subsection*{Referencias}
+Por último, es relevante mencionar como es posible relacionar instancias singulares a través de referencias. Tomando como ejemplo la clase \texttt{Nodo} que se encuentra en el archivo \textbf{nodo.py} se puede crear una lista enlazada.
+
+\begin{center}
+\begin{lstlisting}[language=Python,frame=single]
+    class Nodo:
+        def __init__(self, e, n):
+            self.element = e
+            self.next = n
+        
+    lista1 = Nodo(1, Nodo(2, Nodo(3, Nodo(4, Nodo(5, None)))))
+\end{lstlisting}
+\end{center}
+
+Como puede ver, es sencillo definir una lista enlazada por medio de clases y debe usarlas en el desarrollo del laboratorio. El uso de las listas de \textit{Python} está prohibido.
+
+\section*{Requerimientos específicos}
+Todos los archivos base para el desarrollo del laboratorio se encuentran adjuntos a este enunciado. Usted tendrá que crear los archivos \textbf{pila.py} y \textbf{cola.py}, con los siguientes métodos en cada archivo.
+
+\newpage
+
+\begin{itemize}
+    \item \textbf{pila.py}
+        \begin{itemize}
+            \item{$is\_empty$. Devuelve \texttt{True} si la pila está vacía, sino retorna \texttt{False}}
+            \item{$push$. Agrega un elemento en el tope de la pila}
+            \item{$pop$. Devuelve y remueve el elemento en el tope de la pila}
+            \item{$top$. Devuelve pero no remueve el elemento en el tope de la pila}
+            \item{$size$. Devuelve el número de elementos en la pila}
+        \end{itemize}
+    \item \textbf{cola.py}
+        \begin{itemize}
+            \item{$is\_empty$. Devuelve \texttt{True} si la cola está vacía, sino retorna \texttt{False}}
+            \item{$enqueue$. Agrega un elemento al final de la cola}
+            \item{$dequeue$. Devuelve y remueve el primer elemento de la cola}
+            \item{$first$. Devuelve pero no remueve el primer elemento de la cola}
+            \item{$size$. Devuelve el número de elementos en la cola}
+        \end{itemize}
+\end{itemize}
+
+Es importante resaltar el uso de la clase \texttt{Nodo} en el archivo \textbf{nodo.py}, esta debe ser importada en ambos archivos. Para probar el funcionamiento de su pila y cola hay dos archivos, \textbf{prueba\_pila.py} y \textbf{prueba\_cola.py}. La salida de cada archivo debe ser la siguiente respectivamente. Donde la primera columna es el método llamado, la segunda es el valor de retorno y la tercera es el estado actual de la estructura.
+
+\begin{center}
+\begin{lstlisting}[language=Python,frame=single]
+    'p.push(27)'       None           [27]     
+    'p.push(9)'        None          [9,27]    
+     'p.size()'         2            [9,27]    
+     'p.top()'          9            [9,27]    
+     'p.pop()'          9             [27]     
+    'p.push(3)'        None          [3,27]    
+   'p.is_empty()'     False          [3,27]    
+     'p.pop()'          3             [27]     
+     'p.size()'         1             [27]     
+     'p.pop()'          27            None     
+   'p.is_empty()'      True           None     
+     'p.pop()'         None           None 
+\end{lstlisting}
+\end{center}
+
+\begin{center}
+\begin{lstlisting}[language=Python,frame=single]
+    'c.enqueue(3)'      None           [3]
+    'c.enqueue(5)'      None          [3,5]
+      'c.size()'         2            [3,5]
+    'c.enqueue(9)'      None         [3,5,9]
+    'c.dequeue()'        3            [5,9]
+     'c.first()'         5            [5,9]
+    'c.is_empty()'     False          [5,9]
+    'c.dequeue()'        5             [9]
+    'c.dequeue()'        9             None
+      'c.size()'         0             None
+    'c.is_empty()'      True           None
+    'c.dequeue()'       None           None
+\end{lstlisting}
+\end{center}
+
+\section*{Entrega del laboratorio}
+
+Al finalizar el desarrollo del laboratorio, deberá comprimir el código fuente en un archivo llamado $lab\_sem\_8\_X\_Y.tar.gz$ donde X y Y corresponden al carné de cada integrante del grupo. En caso de no tener pareja llame el comprimido $lab\_sem\_8\_X.tar.gz$ donde X es su número de carné. La entrega será hasta las 4:30pm del jueves 2 de marzo de 2017.
+
+\end{document}
