@@ -1,0 +1,10 @@
+Cafe	2	Si
+Limon	1	Si
+Mantequilla	1	Si
+Agua	0	Si
+Harina	0	Si
+Azucar	0	No
+Chocolate	4	No
+Mango	4	No
+Vainilla	4	No
+La torta se puede preparar

@@ -1,0 +1,5 @@
+5
+Vainilla	4	Si
+Vainilla	4	Si
+Mantequilla	1	Si
+Harina	0	Si

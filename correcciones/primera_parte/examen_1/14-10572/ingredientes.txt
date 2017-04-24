@@ -1,0 +1,5 @@
+4
+Mantequilla	1	Si
+Harina	0	Si
+Chocolate	4	Si
+Vainilla	4	Si

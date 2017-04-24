@@ -1,0 +1,4 @@
+3
+La Vida Boheme	Voce	/home/sandra/Documents/La Vida Boheme - Voce.wav
+Ed Sheeran	Shape of You	/home/sandra/Documents/Ed Sheeran - Shape Of You.wav
+Bruno Mars	Thats What I Like	/home/sandra/Documents/Bruno Mars - Thats What I Like.wav

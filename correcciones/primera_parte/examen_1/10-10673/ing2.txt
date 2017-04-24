@@ -1,0 +1,10 @@
+5
+Mantequilla	1	Si
+Harina	0	Si
+Azucar	0	No
+Chocolate	4	Si
+Vainilla	4	Si
+Mango	4	Si
+Cafe	2	No
+Agua	0	Si
+Limon	1	Si

@@ -1,0 +1,15 @@
+Este proyecto fue un reto que planeamos terminar
+sinceramente nos costó mucho pero el tiempo no nos alcanzó para solventar algunos errores,
+también trabajar en equipo se nos complicó por vivir muy lejos.
+
+Quizás el programa no corra todas las opciones pero hubo un esfuerzo muy grande de ambos 
+por entender estos contenidos por primera vez y agradecemos la apreciación del trabajo.
+
+NOTA: COMO EL ARCHIVO CANCIONES.IN que mandó el Profesor David Lilue NO TENÍA en la primera
+	línea el número n de canciones, nuestro programa no asume un archivo .txt que si la 
+	tenga, disculpe.
+
+	Cabe destacar que en el envío del proyecto no anexamos las canciones pues 
+	el proyecto tal cual como se envía está pensado para que reproduzca las
+	canciones que el prof. Lilue envió de prueba y asumimos que él las posee.
+	De esta forma hacemos la subida del proyecto más ligera.

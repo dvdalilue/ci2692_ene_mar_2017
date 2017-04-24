@@ -1,0 +1,5 @@
+Azucar	0	No
+Chocolate	4	Si
+Harina	0	Si
+Mantequilla	1	Si
+Vainilla	4	Si

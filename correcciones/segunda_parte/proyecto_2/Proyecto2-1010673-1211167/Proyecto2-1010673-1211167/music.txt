@@ -1,0 +1,3 @@
+2
+Rawayana	High	/home/anny/Documents/Laboratorio/audio1.wav
+Radiohead	15 Step	/home/anny/Documents/Laboratorio/audio2.wav
