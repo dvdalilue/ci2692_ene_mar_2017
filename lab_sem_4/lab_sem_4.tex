@@ -1,0 +1,409 @@
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[text={6.5in,10in},centering]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage{ragged2e}
+\usepackage{titlesec}
+\usepackage{tikz-qtree}
+\usepackage{xspace}
+\usepackage{fancyhdr}
+
+\usetikzlibrary{calc}
+ 
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{Heap. Heapsort. Cola de Prioridad}
+\rhead{CI2692}
+\rfoot{\thepage}
+
+\tikzset{every tree node/.style={minimum width=2em,draw,circle},
+         blank/.style={draw=none},
+         edge from parent/.style=
+         {draw,edge from parent path={(\tikzparentnode) -- (\tikzchildnode)}},
+         level distance=1.5cm}
+
+\setlength{\oddsidemargin}{13pt} % margen izquierdo
+\setlength{\topmargin}{-15pt} % margen superior
+\setlength{\textheight}{648pt} % margen inferior
+\setlength{\textwidth}{470pt} % margen derecho
+
+\renewcommand{\familydefault}{\rmdefault}
+
+\setcounter{section}{-1}
+\setcounter{page}{0}
+
+\setlength{\parindent}{0em} % First line paragraph indentation
+
+\titleformat*{\section}{\LARGE\bfseries}
+
+\lstset{
+%basicstyle=\footnotesize\ttfamily,
+numbers=left,
+%numberstyle=\scriptsize,
+%numbersep=1pt,
+%belowskip=\medskipamount,
+%frame = trBL,%single,
+%framexleftmargin=15pt,
+showstringspaces=false,
+literate={á}{{\'a}}1 {í}{{\'i}}1 {é}{{\'e}}1 {ó}{{\'o}}1 {ú}{{\'u}}1 {ñ}{{\~n}}1,
+}
+
+\begin{document}
+
+\thispagestyle{empty}
+
+\begin{flushleft}
+Universidad Simón Bolívar \\
+Departamento de Computación y Tecnologías de la Información \\
+CI2692 - Laboratorio de Algoritmos y Estructuras II \\
+Enero - Marzo 2017
+\end{flushleft}
+
+\vfill
+
+\begin{center}
+\textsc{\LARGE CI2692 - Laboratorio 3} \\
+
+\line(1,0){420} \\
+\vspace{1em}
+\textsc{\LARGE Heap. Heapsort. Cola de Prioridad}
+\end{center}
+
+\vfill
+
+\begin{center}
+Sartenejas, febrero de 2017
+\end{center}
+
+\newpage
+
+\section*{Introducción}
+
+\sloppy
+El objetivo de este laboratorio representar un \textit{heap} a través de un arreglo.
+Específicamente el arreglo \textit{ArrayT} previamente usado en los laboratorios.
+Esto es un requerimiento y estará prohibido usar las listas de \textit{Python};
+las mismas no serán necesarias. Después de haber construido una
+representación de \textit{heap}, usted deberá implementar el algoritmo de
+ordenamiento \textit{heapsort} para ordenar una serie de objetos comparables bajo
+cierto criterio y por último habrá un ejercicio conceptual para visualizar
+la equivalencia entre un \textit{heap} y una cola de prioridad.
+
+\section*{Representación del \textit{heap}}
+\sloppy
+En primer lugar hay que definir como será la estructura abstracta que contendrá los valores a manipular. Para éste laboratorio nuestro \textit{heap} será un árbol binario, en el cual se mantendrá la condición de que cada nodo padre será mayor que sus hijos, en lo que respecta a la comparación del valor almacenado en los nodos. Nuestro \textit{heap} binario estará representado por un arreglo \textit{ArrayT}, tomando como referencia las clases de teoría. A continuación se muestra lo que sería un \textit{heap} binario que almacena enteros.
+\\
+\begin{center}
+
+\begin{tikzpicture}
+\Tree
+[.42     
+    [.27
+        [.14
+            \edge[]; {7}
+            \edge[blank]; \node[blank]{};
+            \edge[blank]; \node[blank]{};
+        ]
+        \edge[]; {9}
+    ]
+    \edge[blank]; \node[blank]{};
+    [.37
+        \edge[]; {23}
+        \edge[blank]; \node[blank]{};
+        \edge[]; {12}
+    ]
+]
+\end{tikzpicture}
+
+\end{center}
+
+\vspace{1em}
+
+Donde su representación en un arreglo sería de la siguiente manera, tomando en cuenta que la raíz del \textit{heap} se encuentra en la posición $0$ del arreglo.
+
+\vspace{1em}
+
+\begin{center}
+    \begin{tikzpicture}
+        \coordinate (s) at (0,0);
+        \foreach \num in {42,27,37,14,9,23,12,7}{
+            \node[minimum size=6mm, draw, rectangle] at (s) {\num};
+            \coordinate (s) at ($(s) + (0.635,0)$);
+        }
+    \end{tikzpicture}
+\end{center}
+
+\newpage
+
+Ahora, si se desea obtener el índice del hijo izquierdo, hijo derecho o del padre, se deben usar la siguientes funciones; las mismas están definidas en el código base adjunto a este enunciado.
+
+\vspace{1em}
+
+\begin{center}
+\begin{lstlisting}[language=Python,frame=single]
+    def parent(i):
+        return (i + 1) // 2 - 1
+
+    def left(i):
+        return (2*(i+1)-1)
+
+    def right(i):
+        return (2*(i+1))
+\end{lstlisting}
+\end{center}
+
+%\vspace{1em}
+
+\section*{Alcanzar la condición de \textit{heap}}
+
+La función clave para lograr realizar este laboratorio se llama \textbf{\textit{heapify}}, la cual mantiene la condición antes mencionada donde todo nodo padre es mayor a sus hijos. Esta función recibe un arreglo al cual se le aplican una serie de intercambios entre sus nodos en caso de ser necesario. Partiendo de un nodo \textbf{\textit{i}} y suponiendo que sus hijos, siendo ellos subárboles, cumplen la condición de \textit{heap}, aunque él puede que no la cumpla la condición. A continuación se describe lo que hace la función.
+
+\vspace{1em}
+
+\begin{center}
+\begin{lstlisting}[language=Python,frame=single,mathescape]
+def heapify(array, i, length):
+    hijo_izquierdo $\gets$ left(i)
+    hijo_derecho $\gets$ right(i)
+    
+    el_mayor $\gets$ i
+
+    if hijo_izquierdo $<$ length and array[hijo_izquierdo] > array[i]
+        el_mayor $\gets$ hijo_izquierdo
+
+    if hijo_derecho $<$ length and array[hijo_derecho] > array[el_mayor]
+        el_mayor $\gets$ hijo_derecho
+        
+    if el_mayor $\neq$ i
+        swap(array,el_mayor,i)
+        heapify(array,el_mayor,length)
+\end{lstlisting}
+\end{center}
+
+La funciones \textbf{\textit{left}} y \textbf{\textit{right}} son las que están especificadas en la sección anterior. La función \textbf{\textit{swap}} intercambia dos elementos del arreglo que es pasado como primer parámetro, los otros parámetros son las posiciones de los elementos a intercambiar. Cabe destacar que esta será la única función recursiva del laboratorio.
+
+\newpage
+
+\section*{Crear un \textit{heap}}
+
+Teniendo definida la función \textbf{\textit{heapify}} no basta para crear un \textit{heap} a partir de un arreglo arbitrario, dado que esta parte de un nodo y desciende por sus hijos. A pesar de ello, gracias a \textbf{\textit{heapify}}, es posible crear un \textit{heap} aplicando la función sobre todos aquellos nodos que tengan al menos un hijo y buscando el padre con al menos un hijo que se encuentre en el nivel más bajo del árbol. Esto se consigue con el siguiente pseudocódigo.
+
+\vspace{1em}
+
+\begin{center}
+\begin{lstlisting}[language=Python,frame=single,mathescape]
+    def build_max_heap(array):
+        for i from (len(array) // 2) downto 0
+            heapify(array,i,len(array))
+\end{lstlisting}
+\end{center}
+
+%\newpage
+
+\section*{Ordenamiento por \textit{heapsort}}
+
+Después de haber creado el \textit{heap}, ya están las condiciones ideales para aplicar el algoritmo de ordenamiento \textit{heapsort}. Ya sabemos que el valor más grande se encuentra en la raíz del árbol, o mejor dicho, en la posición 0 del arreglo. Partiendo de ese hecho, se define el siguiente pseudocódigo.
+
+\vspace{1em}
+
+\begin{center}
+\begin{lstlisting}[language=Python,frame=single,mathescape]
+    def heap_sort(array):
+        build_max_heap(array)
+        for i from (len(array)-1) downto 1
+            swap(array,0,i)
+            heapify(array,0,i)
+\end{lstlisting}
+\end{center}
+
+%se debe intercambiar ese primer elemento con el último. Es claro que la condición de \textit{heap} se verá incumplida, por lo que se debe aplicar \textbf{\textit{heapify}} desde el nodo raíz, limitando su rango de acción justo antes de ese elemento que era el más grande y así un nuevo elemento estará de primero en el arreglo. El cual será más grande que todos, excepto por aquel que recién se dejo al final. Entonces, la idea es repetir esta acción hasta que se hayan dejado al final ordenadamente de mayor a menor todos los elementos del arreglo.
+
+En la próxima página se puede visualizar una pequeña corrida del algoritmo.
+
+%\vspace{1em}
+\newpage
+
+\begin{center}
+    \begin{tikzpicture}
+        \coordinate (s) at (0,0);
+        \foreach \num in {42,27,37,14,9}{
+            \node[minimum size=6mm, draw, rectangle] at (s) {\num};
+            \coordinate (s) at ($(s) + (0.635,0)$);
+        }
+    \end{tikzpicture}
+\end{center}
+
+\vspace{1em}
+
+\begin{center}
+    \begin{tikzpicture}
+        \coordinate (s) at (0,0);
+        \foreach \num in {9,27,37,14}{
+            \node[minimum size=6mm, draw, rectangle] at (s) {\num};
+            \coordinate (s) at ($(s) + (0.635,0)$);
+        }
+        \foreach \num in {42}{
+            \node[minimum size=6mm, fill=green, draw, rectangle] at (s) {\num};
+            \coordinate (s) at ($(s) + (0.635,0)$);
+        }
+    \end{tikzpicture}
+\end{center}
+
+\vspace{1em}
+
+\begin{center}
+    \begin{tikzpicture}
+        \coordinate (s) at (0,0);
+        \foreach \num in {37,27,9,14}{
+            \node[minimum size=6mm, draw, rectangle] at (s) {\num};
+            \coordinate (s) at ($(s) + (0.635,0)$);
+        }
+        \foreach \num in {42}{
+            \node[minimum size=6mm, fill=green, draw, rectangle] at (s) {\num};
+            \coordinate (s) at ($(s) + (0.635,0)$);
+        }
+    \end{tikzpicture}
+\end{center}
+
+\vspace{1em}
+
+\begin{center}
+    \begin{tikzpicture}
+        \coordinate (s) at (0,0);
+        \foreach \num in {14,27,9}{
+            \node[minimum size=6mm, draw, rectangle] at (s) {\num};
+            \coordinate (s) at ($(s) + (0.635,0)$);
+        }
+        \foreach \num in {37,42}{
+            \node[minimum size=6mm, fill=green, draw, rectangle] at (s) {\num};
+            \coordinate (s) at ($(s) + (0.635,0)$);
+        }
+    \end{tikzpicture}
+\end{center}
+
+\vspace{1em}
+
+\begin{center}
+    \begin{tikzpicture}
+        \coordinate (s) at (0,0);
+        \foreach \num in {27,14,9}{
+            \node[minimum size=6mm, draw, rectangle] at (s) {\num};
+            \coordinate (s) at ($(s) + (0.635,0)$);
+        }
+        \foreach \num in {37,42}{
+            \node[minimum size=6mm, fill=green, draw, rectangle] at (s) {\num};
+            \coordinate (s) at ($(s) + (0.635,0)$);
+        }
+    \end{tikzpicture}
+\end{center}
+
+\vspace{1em}
+
+\begin{center}
+    \begin{tikzpicture}
+        \coordinate (s) at (0,0);
+        \foreach \num in {9,14}{
+            \node[minimum size=6mm, draw, rectangle] at (s) {\num};
+            \coordinate (s) at ($(s) + (0.635,0)$);
+        }
+        \foreach \num in {27,37,42}{
+            \node[minimum size=6mm, fill=green, draw, rectangle] at (s) {\num};
+            \coordinate (s) at ($(s) + (0.635,0)$);
+        }
+    \end{tikzpicture}
+\end{center}
+
+\vspace{1em}
+
+\begin{center}
+    \begin{tikzpicture}
+        \coordinate (s) at (0,0);
+        \foreach \num in {14,9}{
+            \node[minimum size=6mm, draw, rectangle] at (s) {\num};
+            \coordinate (s) at ($(s) + (0.635,0)$);
+        }
+        \foreach \num in {27,37,42}{
+            \node[minimum size=6mm, fill=green, draw, rectangle] at (s) {\num};
+            \coordinate (s) at ($(s) + (0.635,0)$);
+        }
+    \end{tikzpicture}
+\end{center}
+
+\vspace{1em}
+
+
+\begin{center}
+    \begin{tikzpicture}
+        \coordinate (s) at (0,0);
+        \foreach \num in {9,14,27,37,42}{
+            \node[minimum size=6mm, fill=green, draw, rectangle] at (s) {\num};
+            \coordinate (s) at ($(s) + (0.635,0)$);
+        }
+    \end{tikzpicture}
+\end{center}
+
+%\vspace{1em}
+
+
+\section*{Obtener el primero en una cola de prioridad}
+
+Finalmente, dejando a un lado el algoritmo de ordenamiento \textit{heapsort}, pero manteniendo la estructura del \textit{heap}, es posible representar una cola de prioridad usando en esencia lo mismo que se tiene hasta el momento. La condición no sería quien es mayor, sino quien tiene mayor prioridad pero a fines prácticos es esencialmente lo mismo. La idea es similar a \textit{heapsort} aunque en este caso se devuelve el nodo con mayor valor pero antes de llamar a la función se debe construir el \textit{heap} a partir del arreglo.
+
+\vspace{1em}
+
+\begin{center}
+\begin{lstlisting}[language=Python,frame=single,mathescape]
+    def dequeue(array):
+        if len(array) < 1
+            error "El arreglo debe tener más de un elemento"
+
+        aux_array = array[1..len(array)-1]
+        
+        heapify(aux_array,0,len(aux_array))
+        return (array[0],aux_array)
+\end{lstlisting}
+\end{center}
+
+
+\section*{Requerimientos específicos}
+
+Todos los archivos base para el desarrollo del laboratorio se encuentran adjuntos a este enunciado. Usted tendrá que modificar el archivo "\textbf{heap\_functions.py}", donde implementará las funciones \textbf{\textit{swap}}, \textbf{\textit{heapify}}, \textbf{\textit{build\_max\_heap}}, \textbf{\textit{heap\_sort}} y \textbf{\textit{dequeue}}. En el archivo "\textbf{ordenamiento.py}"\ importará solamente la función \textit{heap\_sort} del módulo "\textbf{heap\_functions.py}". Así podrá correr el cliente de ordenamiento con \textit{heap\_sort}, y adicionalmente deberá estar su implementación de \textit{merge\_sort} para comparar ambos algoritmos. Deberá generar una gráfica comparativa entre los algoritmos con al menos 5 tamaños de arreglos diferentes. Cualquier otro algoritmo de ordenamiento deberá estar comentado.\ Específicamente se pide:
+
+\begin{itemize}
+    \item Implementar \textbf{\textit{swap(ArrayT array, Int i, Int j)}}
+    \item Implementar \textbf{\textit{heapify(ArrayT array, Int i, Int length)}}.
+    \item Implementar \textbf{\textit{build\_max\_heap(ArrayT array)}}.
+    \item Implementar \textbf{\textit{heap\_sort(ArrayT array)}}.
+    \item Implementar \textbf{\textit{dequeue(ArrayT array)}}.
+\end{itemize}
+
+Esta última función, \textbf{\textit{dequeue}}, se usará sólo en el cliente para la cola de prioridad proporcionado junto a este enunciado, un archivo llamado "\textbf{cliente\_cola.py}". Donde se simulará la ejecución de ciertas actividades previamente definidas de manera secuencial, usando la función \textbf{\textit{dequeue\_max}}, cuya salida se puede ver a continuación.
+
+\vspace{1em}
+
+\begin{center}
+\begin{lstlisting}[frame=single]
+    Secuencia de actividades a realizar:
+
+    Realicé la actividad: Recargar teléfono
+    Faltan: 4
+    Realicé la actividad: Hacer currículum
+    Faltan: 3
+    Realicé la actividad: Lavar la ropa
+    Faltan: 2
+    Realicé la actividad: Ir al odontólogo
+    Faltan: 1
+    Realicé la actividad: Comprar comida
+    Terminé
+\end{lstlisting}
+\end{center}
+
+\section*{Entrega del laboratorio}
+
+Al finalizar el desarrollo del laboratorio, deberá comprimir el código fuente y la gráfica en un archivo llamado $lab\_3\_X\_Y.tar.gz$ donde X y Y corresponden al carné de cada integrante del grupo. En caso de no tener pareja llame el comprimido $lab\_3\_X.tar.gz$ donde X es su número de carné. La entrega será hasta las 4:30pm del jueves 2 de febrero de 2017.
+
+\end{document}
